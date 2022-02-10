@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - appveyor.yml
+      - .gitignore
+  push:
+    paths-ignore:
+      - '**.md'
+      - appveyor.yml
+      - .gitignore
+
+
+jobs:
+  build:
+    name: ghc ${{ matrix.ghc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04]
+        #os: [ubuntu-18.04, macOS-latest, windows-latest]
+        cabal: ["2.4"]
+        ghc:
+          - "8.8.3"
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-haskell@v1
+      name: Setup Haskell
+      with:
+        ghc-version: ${{ matrix.ghc }}
+        cabal-version: ${{ matrix.cabal }}
+
+    - uses: actions/cache@v1
+      name: Cache ~/.cabal/store
+      with:
+        path: ~/.cabal/store
+        key: ${{ runner.os }}-${{ matrix.ghc }}-cabal
+
+    #- name: Build
+    #  run: |
+    #    cabal v2-update
+    #    cabal v2-build --enable-tests --enable-benchmarks
+
+
+
